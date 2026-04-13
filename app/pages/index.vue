@@ -1,77 +1,170 @@
+<script setup lang="ts">
+import { useRoomStore } from '~/stores/room'
+
+const roomStore = useRoomStore()
+const nickname = ref('')
+const joinRoomId = ref('')
+const loading = ref(false)
+const toast = useToast()
+
+// 初始化时从 localStorage 加载昵称
+onMounted(() => {
+  const saved = localStorage.getItem('numdecode_nickname')
+  if (saved) {
+    nickname.value = saved
+  }
+})
+
+// 创建房间
+async function handleCreate() {
+  if (!nickname.value.trim()) {
+    toast.add({ title: '请输入昵称', color: 'error' })
+    return
+  }
+  
+  loading.value = true
+  roomStore.initUser(nickname.value)
+
+  try {
+    const data = await $fetch('/api/room/create', {
+      method: 'POST',
+      body: { 
+        nickname: nickname.value,
+        userId: roomStore.user?.userId
+      }
+    })
+
+    // 跳转到房间页
+    navigateTo(`/room/${data.roomId}`)
+  } catch (err) {
+    toast.add({ title: '创建失败', description: '请稍后再试', color: 'error' })
+  } finally {
+    loading.value = false
+  }
+}
+
+// 加入房间
+async function handleJoin() {
+  if (!nickname.value.trim()) {
+    toast.add({ title: '请输入昵称', color: 'error' })
+    return
+  }
+  if (!/^\d{4}$/.test(joinRoomId.value)) {
+    toast.add({ title: '请输入4位数字房间号', color: 'error' })
+    return
+  }
+
+  loading.value = true
+  roomStore.initUser(nickname.value)
+  
+  try {
+    const check = await $fetch(`/api/room/check/${joinRoomId.value}`)
+    if (!check.exists) {
+      toast.add({ title: '房间不存在', color: 'error' })
+      return
+    }
+    
+    navigateTo(`/room/${joinRoomId.value}`)
+  } catch (err) {
+    toast.add({ title: '加入失败', color: 'error' })
+  } finally {
+    loading.value = false
+  }
+}
+
+// 处理点击时的水彩扩散位置
+function handlePointerDown(e: PointerEvent) {
+  const target = e.currentTarget as HTMLElement
+  const rect = target.getBoundingClientRect()
+  const x = ((e.clientX - rect.left) / rect.width) * 100
+  const y = ((e.clientY - rect.top) / rect.height) * 100
+  target.style.setProperty('--x', `${x}%`)
+  target.style.setProperty('--y', `${y}%`)
+}
+</script>
+
 <template>
-  <div>
-    <div>你好</div>
-    <UPageHero
-      title="Nuxt Starter Template"
-      description="A production-ready starter template powered by Nuxt UI. Build beautiful, accessible, and performant applications in minutes, not hours."
-      :links="[{
-        label: 'Get started',
-        to: 'https://ui.nuxt.com/docs/getting-started/installation/nuxt',
-        target: '_blank',
-        trailingIcon: 'i-lucide-arrow-right',
-        size: 'xl'
-      }, {
-        label: 'Use this template',
-        to: 'https://github.com/nuxt-ui-templates/starter',
-        target: '_blank',
-        icon: 'i-simple-icons-github',
-        size: 'xl',
-        color: 'neutral',
-        variant: 'subtle'
-      }]"
-    />
+  <div class="flex flex-col items-center justify-center min-h-[80vh] px-4">
+    <!-- 标题区 -->
+    <div class="mb-12 text-center animate-bounce-slow">
+      <h1 class="text-6xl font-bold tracking-tighter text-pencil-grey mb-2 drop-shadow-sm">
+        NumDecode
+      </h1>
+      <p class="text-xl text-gray-500 font-handwriting">数字破译：逻辑与直觉的博弈</p>
+    </div>
 
-    <UPageSection
-      id="features"
-      title="Everything you need to build modern Nuxt apps"
-      description="Start with a solid foundation. This template includes all the essentials for building production-ready applications with Nuxt UI's powerful component system."
-      :features="[{
-        icon: 'i-lucide-rocket',
-        title: 'Production-ready from day one',
-        description: 'Pre-configured with TypeScript, ESLint, Tailwind CSS, and all the best practices. Focus on building features, not setting up tooling.'
-      }, {
-        icon: 'i-lucide-palette',
-        title: 'Beautiful by default',
-        description: 'Leveraging Nuxt UI\'s design system with automatic dark mode, consistent spacing, and polished components that look great out of the box.'
-      }, {
-        icon: 'i-lucide-zap',
-        title: 'Lightning fast',
-        description: 'Optimized for performance with SSR/SSG support, automatic code splitting, and edge-ready deployment. Your users will love the speed.'
-      }, {
-        icon: 'i-lucide-blocks',
-        title: '100+ components included',
-        description: 'Access Nuxt UI\'s comprehensive component library. From forms to navigation, everything is accessible, responsive, and customizable.'
-      }, {
-        icon: 'i-lucide-code-2',
-        title: 'Developer experience first',
-        description: 'Auto-imports, hot module replacement, and TypeScript support. Write less boilerplate and ship more features.'
-      }, {
-        icon: 'i-lucide-shield-check',
-        title: 'Built for scale',
-        description: 'Enterprise-ready architecture with proper error handling, SEO optimization, and security best practices built-in.'
-      }]"
-    />
+    <!-- 主控制台 -->
+    <div class="w-full max-w-sm sketch-box p-8 space-y-8 bg-white/60 backdrop-blur-sm relative overflow-hidden">
+      <!-- 装饰用水彩印记 -->
+      <div class="absolute -top-10 -right-10 w-24 h-24 bg-ink-blue opacity-20 blur-2xl rounded-full"></div>
+      
+      <!-- 核心表单 -->
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1 ml-1">玩家昵称</label>
+          <UInput
+            v-model="nickname"
+            placeholder="输入你的代号..."
+            size="xl"
+            color="neutral"
+            variant="none"
+            class="sketch-box !rotate-[0.2deg] bg-white border-2 border-pencil-grey"
+          />
+        </div>
 
-    <UPageSection>
-      <UPageCTA
-        title="Ready to build your next Nuxt app?"
-        description="Join thousands of developers building with Nuxt and Nuxt UI. Get this template and start shipping today."
-        variant="subtle"
-        :links="[{
-          label: 'Start building',
-          to: 'https://ui.nuxt.com/docs/getting-started/installation/nuxt',
-          target: '_blank',
-          trailingIcon: 'i-lucide-arrow-right',
-          color: 'neutral'
-        }, {
-          label: 'View on GitHub',
-          to: 'https://github.com/nuxt-ui-templates/starter',
-          target: '_blank',
-          icon: 'i-simple-icons-github',
-          color: 'neutral',
-          variant: 'outline'
-        }]"
-      />
-    </UPageSection>
+        <div class="pt-4 border-t border-dashed border-gray-400">
+          <UButton
+            block
+            size="xl"
+            label="创建对局"
+            variant="outline"
+            :loading="loading"
+            class="sketch-box !rotate-[-0.3deg] watercolor-tap hover:scale-105 active:scale-95 transition-transform"
+            @pointerdown="handlePointerDown"
+            @click="handleCreate"
+          />
+        </div>
+
+        <div class="relative py-4 flex items-center">
+          <div class="flex-grow border-t border-gray-300"></div>
+          <span class="flex-shrink mx-4 text-gray-400 text-sm">或者加入</span>
+          <div class="flex-grow border-t border-gray-300"></div>
+        </div>
+
+        <div class="flex gap-2">
+          <UInput
+            v-model="joinRoomId"
+            placeholder="房间号"
+            maxlength="4"
+            class="flex-1 sketch-box !rotate-[0.1deg] border-2 border-pencil-grey"
+          />
+          <UButton
+            icon="i-lucide-arrow-right"
+            color="primary"
+            variant="outline"
+            :loading="loading"
+            class="sketch-box !rotate-[0.5deg] watercolor-tap"
+            @pointerdown="handlePointerDown"
+            @click="handleJoin"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- 底部装饰语 -->
+    <footer class="mt-16 text-gray-400 text-sm font-handwriting opacity-80">
+      手绘水彩风格 • Nuxt 4 全栈驱动
+    </footer>
   </div>
 </template>
+
+<style scoped>
+.animate-bounce-slow {
+  animation: bounce 3s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+</style>

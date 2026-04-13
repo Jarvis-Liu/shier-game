@@ -2,7 +2,8 @@
 export default defineNuxtConfig({
   modules: [
     '@nuxt/eslint',
-    '@nuxt/ui'
+    '@nuxt/ui',
+    '@pinia/nuxt'
   ],
 
   devtools: {
@@ -25,12 +26,18 @@ export default defineNuxtConfig({
       }
     }
   },
+  ui: {
+    fonts: false
+  },
   fonts: {
     providers: {
       google: false // 禁用远程 Google Fonts，改用本地或其它方式
     }
   },
   icon: {
-    serverBundle: 'remote' // 或者尝试改为 'local'
+    serverBundle: {
+      remote: false
+    },
+    fallbackToApi: false
   }
 })

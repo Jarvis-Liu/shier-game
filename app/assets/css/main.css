@@ -1,18 +1,108 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
 
-@theme static {
-  --font-sans: 'Public Sans', sans-serif;
+@theme {
+  --color-primary: var(--ui-primary);
+  
+  /* PRD 指定色系 */
+  --color-paper-base: #F4EFE6;
+  --color-pencil-grey: #3B3A36;
+  --color-ink-blue: rgba(56, 189, 248, 0.4);
+  --color-ink-orange: rgba(251, 146, 60, 0.4);
+  --color-success-ink: #2D5A27;
+  --color-fail-ink: #8B1E1E;
 
-  --color-green-50: #EFFDF5;
-  --color-green-100: #D9FBE8;
-  --color-green-200: #B3F5D1;
-  --color-green-300: #75EDAE;
-  --color-green-400: #00DC82;
-  --color-green-500: #00C16A;
-  --color-green-600: #00A155;
-  --color-green-700: #007F45;
-  --color-green-800: #016538;
-  --color-green-900: #0A5331;
-  --color-green-950: #052E16;
+  /* 字体族 */
+  --font-handwriting: "ZCOOL KuaiLe", "Ma Shan Zheng", cursive;
 }
+
+@layer base {
+  body {
+    background-color: var(--color-paper-base);
+    color: var(--color-pencil-grey);
+    font-family: var(--font-handwriting), var(--font-sans);
+    min-height: 100vh;
+    overflow-x: hidden;
+    /* 纸张纹理滤镜将在下面定义 */
+    position: relative;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.15;
+    filter: url(#paper-grain);
+  }
+}
+
+@layer components {
+  /* 手绘感盒子 */
+  .sketch-box {
+    border: 3px solid var(--color-pencil-grey);
+    border-radius: 4px 12px 6px 15px;
+    transform: rotate(var(--sketch-rotate, -0.5deg));
+    transition: all 0.3s ease-in-out;
+    background: rgba(255, 255, 255, 0.4);
+    box-shadow: 2px 4px 10px rgba(0, 0, 0, 0.05);
+  }
+
+  /* 水彩点击扩散效果 */
+  .watercolor-tap {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .watercolor-tap::after {
+    content: "";
+    position: absolute;
+    background: var(--ink-color, var(--color-ink-blue));
+    border-radius: 50%;
+    transform: scale(0);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .watercolor-tap:active::after {
+    animation: watercolor-spread 0.6s ease-out;
+  }
+}
+
+@keyframes watercolor-spread {
+  0% {
+    width: 0;
+    height: 0;
+    left: var(--x, 50%);
+    top: var(--y, 50%);
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0.6;
+    filter: blur(10px);
+  }
+  100% {
+    width: 300%;
+    height: 300%;
+    left: var(--x, 50%);
+    top: var(--y, 50%);
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0;
+    filter: blur(40px);
+  }
+}
+
+/* 墨水晕开动画 */
+.ink-bleed {
+  filter: blur(0px);
+  transition: filter 0.5s ease;
+}
+
+.ink-bleed-active {
+  animation: ink-bloom 0.8s forwards;
+}
+
+@keyframes ink-bloom {
+  0% { filter: blur(5px); opacity: 0; transform: scale(0.95); }
+  100% { filter: blur(0px); opacity: 1; transform: scale(1); }
+}
+

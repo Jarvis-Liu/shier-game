@@ -14,8 +14,14 @@
     "@iconify-json/lucide": "^1.2.101",
     "@iconify-json/simple-icons": "^1.2.77",
     "@nuxt/ui": "^4.6.1",
+    "@pinia/nuxt": "^0.11.3",
+    "@types/uuid": "^11.0.0",
     "nuxt": "^4.4.2",
-    "tailwindcss": "^4.2.2"
+    "pinia": "^3.0.4",
+    "socket.io": "^4.8.3",
+    "socket.io-client": "^4.8.3",
+    "tailwindcss": "^4.2.2",
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.15.2",
