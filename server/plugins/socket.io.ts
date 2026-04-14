@@ -2,8 +2,11 @@ import { Server } from 'socket.io'
 import type { Server as HttpServer } from 'node:http'
 import { setupWSHandlers } from '../utils/wsHandlers'
 
-export default defineNitroPlugin((nitroApp) => {
+declare global {
+  var _io: Server | undefined
+}
 
+export default defineNitroPlugin((nitroApp) => {
   if (process.env.prerender) {
     return
   }
@@ -14,7 +17,7 @@ export default defineNitroPlugin((nitroApp) => {
     return
   }
   // 利用全局变量防止 HMR 时重复挂载
-  if ((global as any)._io) {
+  if (globalThis._io) {
     console.log('[Nuxt] Socket.io already initialized.')
     return
   }
@@ -22,9 +25,8 @@ export default defineNitroPlugin((nitroApp) => {
   let io: Server
 
   nitroApp.hooks.hook('request', (event) => {
-    const req = event.node.req
-    // 获取底层 Node http.Server 实例
-    const server = (req.socket as any)?.server as HttpServer
+    // 获取底层 Node http.Server 实例，使用更安全的类型转换
+    const server = (event.node.req.socket as { server?: HttpServer })?.server
 
     if (server && !io) {
       console.log('⚡ [Socket.io] Initializing Server on first request...')
@@ -35,7 +37,7 @@ export default defineNitroPlugin((nitroApp) => {
       })
 
       // 暴露到全局，避免重复实例化
-      ;(global as any)._io = io
+      globalThis._io = io
 
       setupWSHandlers(io)
     }
