@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { v4 as uuidv4 } from 'uuid'
 import type { Room, Player } from '~/../shared/types'
 
 export const useRoomStore = defineStore('room', () => {
@@ -29,7 +30,7 @@ export const useRoomStore = defineStore('room', () => {
     // 只有在没有 ID 的时候才生成新 ID (实现断线重连的关键)
     let userId = localStorage.getItem('numdecode_user_id')
     if (!userId) {
-      userId = crypto.randomUUID()
+      userId = uuidv4()
       localStorage.setItem('numdecode_user_id', userId)
     }
 
