@@ -150,11 +150,6 @@ function handlePointerDown(e: PointerEvent) {
         </div>
       </div>
     </div>
-
-    <!-- 底部装饰语 -->
-    <footer class="mt-16 text-gray-400 text-sm font-handwriting opacity-80">
-      手绘水彩风格 • Nuxt 4 全栈驱动
-    </footer>
   </div>
 </template>
 

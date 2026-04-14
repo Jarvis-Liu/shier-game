@@ -62,8 +62,13 @@ watch(() => room.value?.logs.length, () => {
               {{ room?.players.find(p => p.userId === log.userId)?.nickname }}:
             </span>
             <span class="ml-2 font-bold tracking-widest">
-              <!-- 核心逻辑：如果是自己猜的或者是已经结束的，显示数字；否则显示星号 -->
-              {{ log.userId === roomStore.user?.userId ? log.guessNumber : '****' }}
+              <!-- 显示逻辑：自己发起的、对局已结束、或者配置中未开启隐藏 => 显示明文 -->
+              <template v-if="log.userId === roomStore.user?.userId || room?.status === 'FINISHED' || room?.config?.hideOpponentGuess === false">
+                {{ log.guessNumber }}
+              </template>
+              <template v-else>
+                ****
+              </template>
             </span>
             <span class="ml-4 px-2 py-0.5 rounded" :class="log.correctCount === 0 ? 'bg-gray-100 text-gray-400' : 'bg-success-ink/10 text-success-ink font-bold'">
               ✓ {{ log.correctCount }} 个对

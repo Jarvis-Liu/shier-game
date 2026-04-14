@@ -38,19 +38,28 @@ export interface GuessRecord {
  * 房间实体
  */
 export interface Room {
-  roomId: string;             // 4位随机房间码
-  status: RoomStatus;         // 当前状态
-  players: Player[];          // 参与者 (Host/Guest)
-  spectators: Player[];       // 观众列表
-  currentTurnUserId: string | null;  // 当前轮到谁进行猜测
-  winnerUserId: string | null;       // 获胜者ID
-  logs: GuessRecord[];        // 全局对局记录日志
-  restartRequests: string[];  // 请求再来一局的玩家ID列表
+  roomId: string             // 4位随机房间码
+  status: RoomStatus         // 当前状态
+  players: Player[]          // 参与者 (Host/Guest)
+  spectators: Player[]       // 观众列表
+  currentTurnUserId: string | null  // 当前轮到谁进行猜测
+  winnerUserId: string | null       // 获胜者ID
+  logs: GuessRecord[]        // 全局对局记录日志
+  restartRequests: string[]  // 请求再来一局的玩家ID列表
+  config: RoomConfig
+  finalSecrets?: Record<string, string>
+}
+
+/**
+ * 房间对局配置项
+ */
+export interface RoomConfig {
+  hideOpponentGuess: boolean // 是否隐藏对方的具体猜测数字 (开启后只显示命中位数)
 }
 
 /**
  * 服务端私有的房间数据 (包含秘密数字)
  */
 export interface ServerRoom extends Room {
-  secrets: Record<string, string>; // userId -> secret
+  secrets: Record<string, string> // userId -> secret
 }

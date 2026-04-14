@@ -1,7 +1,7 @@
 import { RoomStatus, type Room, type Player, type GuessRecord, type ServerRoom } from '../../shared/types'
 
 // 内存中的房间存储
-const rooms = new Map<string, ServerRoom>();
+const rooms = new Map<string, ServerRoom>()
 
 /**
  * 创建新房间
@@ -24,7 +24,10 @@ export function createRoom(nickname: string, userId: string): ServerRoom {
     winnerUserId: null,
     logs: [],
     secrets: {},
-    restartRequests: []
+    restartRequests: [],
+    config: {
+      hideOpponentGuess: true // 默认隐藏对方的具体猜测数字
+    }
   };
 
   rooms.set(roomId, room);
@@ -35,15 +38,21 @@ export function createRoom(nickname: string, userId: string): ServerRoom {
  * 获取房间 (脱敏处理，禁止下发 secret)
  */
 export function getMaskedRoom(roomId: string, userId: string): Room | null {
-  const room = rooms.get(roomId);
-  if (!room) return null;
+  const room = rooms.get(roomId)
+  if (!room) return null
 
-  // 深拷贝并脱敏
-  const maskedRoom: Room = JSON.parse(JSON.stringify(room));
+  // 深度克隆并脱敏
+  const maskedRoom: Room = JSON.parse(JSON.stringify(room))
+
+  // 游戏结束时，公开所有底牌
+  if (room.status === RoomStatus.FINISHED) {
+    maskedRoom.finalSecrets = room.secrets
+  }
+
   // 核心防作弊：清除所有 secret 信息
-  delete (maskedRoom as any).secrets;
+  delete (maskedRoom as any).secrets
   
-  return maskedRoom;
+  return maskedRoom
 }
 
 /**

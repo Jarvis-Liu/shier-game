@@ -87,12 +87,17 @@ export const useSocketio = () => {
     socket.value?.emit('restart_game', { roomId, userId: roomStore.user?.userId })
   }
 
+  const updateConfig = (roomId: string, config: any) => {
+    socket.value?.emit('update_config', { roomId, userId: roomStore.user?.userId, config })
+  }
+
   return {
     socket,
     connect,
     disconnect,
     setSecret,
     submitGuess,
-    restartGame
+    restartGame,
+    updateConfig
   }
 }

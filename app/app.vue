@@ -28,12 +28,29 @@ useSeoMeta({
       <!-- 纸张纹理注入器 (不可见) -->
       <svg class="absolute w-0 h-0 pointer-events-none">
         <filter id="paper-grain">
-          <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="5" stitchTiles="stitch" />
-          <feColorMatrix type="saturate" values="0" />
+          <feTurbulence
+            type="fractalNoise"
+            baseFrequency="0.04"
+            numOctaves="5"
+            stitchTiles="stitch"
+          />
+          <feColorMatrix
+            type="saturate"
+            values="0"
+          />
           <feComponentTransfer>
-            <feFuncR type="linear" slope="1.2" />
-            <feFuncG type="linear" slope="1.2" />
-            <feFuncB type="linear" slope="1.2" />
+            <feFuncR
+              type="linear"
+              slope="1.2"
+            />
+            <feFuncG
+              type="linear"
+              slope="1.2"
+            />
+            <feFuncB
+              type="linear"
+              slope="1.2"
+            />
           </feComponentTransfer>
         </filter>
       </svg>
@@ -42,9 +59,6 @@ useSeoMeta({
       <UMain class="relative z-10 min-h-screen">
         <NuxtPage />
       </UMain>
-
-      <!-- 全局通知组件 -->
-      <UNotifications />
     </div>
   </UApp>
 </template>
@@ -56,4 +70,3 @@ body {
   padding: 0;
 }
 </style>
-
