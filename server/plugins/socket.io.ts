@@ -3,6 +3,16 @@ import type { Server as HttpServer } from 'node:http'
 import { setupWSHandlers } from '../utils/wsHandlers'
 
 export default defineNitroPlugin((nitroApp) => {
+
+  if (process.env.prerender) {
+    return
+  }
+
+  // Vercel Serverless 环境不支持原生 WebSocket 服务，避免其在此环境启动导致问题
+  if (process.env.VERCEL) {
+    console.warn('[Nuxt] Skipping Socket.io initialization: Vercel does not support WebSocket servers.')
+    return
+  }
   // 利用全局变量防止 HMR 时重复挂载
   if ((global as any)._io) {
     console.log('[Nuxt] Socket.io already initialized.')
