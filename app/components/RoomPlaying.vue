@@ -49,10 +49,13 @@ watch(() => room.value?.logs.length, () => {
         <span>战术日志 ({{ room?.logs.length }})</span>
         <span class="text-xs font-normal text-gray-400 font-handwriting">保持逻辑严密...</span>
       </div>
-      
-      <div ref="logContainer" class="flex-1 overflow-y-auto p-4 space-y-3 font-mono">
-        <div 
-          v-for="(log, idx) in room?.logs" 
+
+      <div
+        ref="logContainer"
+        class="flex-1 overflow-y-auto p-4 space-y-3 font-mono"
+      >
+        <div
+          v-for="(log, idx) in room?.logs"
           :key="idx"
           class="flex items-start gap-3 text-sm animate-ink-bleed"
         >
@@ -70,7 +73,10 @@ watch(() => room.value?.logs.length, () => {
                 ****
               </template>
             </span>
-            <span class="ml-4 px-2 py-0.5 rounded" :class="log.correctCount === 0 ? 'bg-gray-100 text-gray-400' : 'bg-success-ink/10 text-success-ink font-bold'">
+            <span
+              class="ml-4 px-2 py-0.5 rounded"
+              :class="log.correctCount === 0 ? 'bg-gray-100 text-gray-400' : 'bg-success-ink/10 text-success-ink font-bold'"
+            >
               ✓ {{ log.correctCount }} 个对
             </span>
           </div>
@@ -81,7 +87,7 @@ watch(() => room.value?.logs.length, () => {
     <!-- 右侧：操作台 (Console) -->
     <div class="w-full md:w-80 flex flex-col space-y-4">
       <!-- 轮次状态 -->
-      <div 
+      <div
         class="sketch-box p-4 text-center transition-all duration-500"
         :class="isMyTurn ? 'bg-ink-blue/10 scale-105 border-ink-blue border-4' : 'bg-gray-100 opacity-60 grayscale'"
       >
@@ -95,13 +101,16 @@ watch(() => room.value?.logs.length, () => {
 
       <!-- 输入显示 -->
       <div class="sketch-box p-4 bg-white border-2 border-pencil-grey text-center min-h-[80px] flex items-center justify-center">
-         <span class="text-4xl font-bold tracking-[0.5em] text-pencil-grey">
-           {{ currentGuess.padEnd(4, '_') }}
-         </span>
+        <span class="text-4xl font-bold tracking-[0.5em] text-pencil-grey">
+          {{ currentGuess.padEnd(4, '_') }}
+        </span>
       </div>
 
       <!-- 数字键盘 -->
-      <div class="grid grid-cols-3 gap-3 p-2 sketch-box bg-white/40" :class="{ 'pointer-events-none grayscale opacity-50': !isMyTurn }">
+      <div
+        class="grid grid-cols-3 gap-3 p-2 sketch-box bg-white/40"
+        :class="{ 'pointer-events-none grayscale opacity-50': !isMyTurn }"
+      >
         <UButton
           v-for="n in 9"
           :key="n"

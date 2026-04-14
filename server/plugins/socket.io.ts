@@ -5,7 +5,7 @@ import { setupWSHandlers } from '../utils/wsHandlers'
 export default defineNitroPlugin((nitroApp) => {
   // 利用全局变量防止 HMR 时重复挂载
   if ((global as any)._io) {
-    console.log('[Nuxt] Socket.io already initialized.');
+    console.log('[Nuxt] Socket.io already initialized.')
     return
   }
 
@@ -23,7 +23,7 @@ export default defineNitroPlugin((nitroApp) => {
           origin: '*'
         }
       })
-      
+
       // 暴露到全局，避免重复实例化
       ;(global as any)._io = io
 
@@ -31,5 +31,5 @@ export default defineNitroPlugin((nitroApp) => {
     }
   })
 
-  console.log('🔌 [Nuxt] Socket.io Plugin Registration Hooked');
+  console.log('🔌 [Nuxt] Socket.io Plugin Registration Hooked')
 })

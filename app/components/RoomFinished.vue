@@ -35,7 +35,7 @@ function handleRestart() {
       </div>
 
       <div v-if="!isSpectator">
-        <h2 
+        <h2
           class="text-6xl font-bold mb-2 font-handwriting tracking-widest"
           :class="isWinner ? 'text-success-ink' : 'text-fail-ink'"
         >
@@ -117,7 +117,7 @@ function handleRestart() {
             等待选手决定是否再来一局... ({{ restartCount }}/2)
           </div>
         </template>
-        
+
         <UButton
           block
           size="lg"

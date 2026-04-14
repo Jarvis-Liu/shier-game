@@ -4,9 +4,9 @@ import type { Room, Player } from '~/../shared/types'
 export const useRoomStore = defineStore('room', () => {
   // 当前房间全量状态
   const room = ref<Room | null>(null)
-  
+
   // 当前在线的玩家个人信息 (从 localStorage 恢复)
-  const user = ref<{ userId: string; nickname: string } | null>(null)
+  const user = ref<{ userId: string, nickname: string } | null>(null)
 
   // 计算属性
   const isHost = computed(() => room.value?.players.find(p => p.userId === user.value?.userId)?.role === 'host')
@@ -16,7 +16,7 @@ export const useRoomStore = defineStore('room', () => {
     if (player) return player.role
     return 'spectator'
   })
-  
+
   const isMyTurn = computed(() => room.value?.currentTurnUserId === user.value?.userId)
 
   // 更新房间状态
@@ -32,7 +32,7 @@ export const useRoomStore = defineStore('room', () => {
       userId = crypto.randomUUID()
       localStorage.setItem('numdecode_user_id', userId)
     }
-    
+
     user.value = { userId, nickname }
     localStorage.setItem('numdecode_nickname', nickname)
   }
