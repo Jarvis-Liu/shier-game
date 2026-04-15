@@ -1,17 +1,22 @@
 import { Server } from 'socket.io'
 import type { Server as HttpServer } from 'node:http'
 import { setupWSHandlers } from '../utils/wsHandlers'
+import { startRoomGC } from '../utils/roomManager'
 
 declare global {
   var _io: Server | undefined
 }
 
 export default defineNitroPlugin((nitroApp) => {
-  if (process.env.prerender) {
+  // 预渲染阶段不启动任何运行时服务
+  if (import.meta.prerender) {
     return
   }
 
-  // Vercel Serverless 环境不支持原生 WebSocket 服务，避免其在此环境启动导致问题
+  // 启动房间垃圾回收（运行时启动，构建时不执行）
+  startRoomGC()
+
+  // Vercel Serverless 环境不支持原生 WebSocket 服务，只跳过 socket.io
   if (process.env.VERCEL) {
     console.warn('[Nuxt] Skipping Socket.io initialization: Vercel does not support WebSocket servers.')
     return
