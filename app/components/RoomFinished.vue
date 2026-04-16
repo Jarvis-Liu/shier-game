@@ -13,7 +13,15 @@ const isWinner = computed(() => room.value?.winnerUserId === roomStore.user?.use
 const winnerNickname = computed(() => room.value?.players.find(p => p.userId === room.value?.winnerUserId)?.nickname)
 const restartCount = computed(() => room.value?.restartRequests.length || 0)
 const hasRequestedRestart = computed(() => room.value?.restartRequests.includes(roomStore.user?.userId || ''))
+const opponent = computed(() => room.value?.players.find(p => p.userId !== roomStore.user?.userId))
+const isOpponentRequested = computed(() => !!opponent.value && room.value?.restartRequests.includes(opponent.value.userId))
 const isSpectator = computed(() => roomStore.myRole === 'spectator')
+
+const buttonLabel = computed(() => {
+  if (hasRequestedRestart.value) return `已发送挑战 (${restartCount.value}/2)`
+  if (isOpponentRequested.value) return '接下挑战'
+  return '再来一局'
+})
 
 function handleRestart() {
   restartGame(props.roomId)
@@ -72,7 +80,7 @@ function handleRestart() {
             对方底牌
           </p>
           <span class="text-2xl font-bold font-mono tracking-widest text-primary">
-            {{ room?.finalSecrets?.[room?.players.find(p => p.userId !== roomStore.user?.userId)?.userId || ''] || '****' }}
+            {{ room?.finalSecrets?.[opponent?.userId || ''] || '****' }}
           </span>
         </div>
       </div>
@@ -101,15 +109,27 @@ function handleRestart() {
 
       <div class="space-y-4">
         <template v-if="!isSpectator">
+          <!-- 对方请求提示 -->
+          <div
+            v-if="isOpponentRequested && !hasRequestedRestart"
+            class="animate-bounce"
+          >
+            <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold ring-1 ring-primary/20">
+              <UIcon name="i-lucide-swords" class="w-3.5 h-3.5" />
+              对方请求再来一局！
+            </span>
+          </div>
+
           <UButton
             block
             size="xl"
             :variant="hasRequestedRestart ? 'outline' : 'solid'"
+            :color="isOpponentRequested && !hasRequestedRestart ? 'primary' : 'gray'"
             class="sketch-box watercolor-tap"
             :disabled="hasRequestedRestart"
             @click="handleRestart"
           >
-            {{ hasRequestedRestart ? `已请求再来一局 (${restartCount}/2)` : '再来一局' }}
+            {{ buttonLabel }}
           </UButton>
         </template>
         <template v-else>
