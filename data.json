@@ -1,0 +1,12 @@
+{
+  "users": {
+    "29f0ec94-1fac-4600-b539-68ce7c97a37a": "江南",
+    "7dc005fa-f9c5-4a13-bf4c-091dbcfab7c9": "张三"
+  },
+  "leaderboard": {
+    "dateStr": "2026-04-17",
+    "records": {
+      "7dc005fa-f9c5-4a13-bf4c-091dbcfab7c9": 1
+    }
+  }
+}

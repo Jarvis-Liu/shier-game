@@ -7,6 +7,7 @@ const joinRoomId = ref('')
 const loading = ref(false)
 const toast = useToast()
 const showHelp = ref(false)
+const showLeaderboard = ref(false)
 
 // 初始化时从 localStorage 加载昵称
 onMounted(() => {
@@ -15,6 +16,24 @@ onMounted(() => {
     nickname.value = saved
   }
 })
+
+async function verifyNickname(): Promise<boolean> {
+  try {
+    const res = await $fetch('/api/user/verify', {
+      method: 'POST',
+      body: {
+        userId: roomStore.user?.userId,
+        nickname: nickname.value
+      }
+    })
+    return res.success || false
+  } catch (err: unknown) {
+    const fetchErr = err as { response?: { _data?: { statusMessage?: string } } }
+    const message = fetchErr?.response?._data?.statusMessage || '服务异常，昵称校验失败'
+    toast.add({ title: message, color: 'error' })
+    return false
+  }
+}
 
 // 创建房间
 async function handleCreate() {
@@ -25,6 +44,11 @@ async function handleCreate() {
 
   loading.value = true
   roomStore.initUser(nickname.value)
+
+  if (!(await verifyNickname())) {
+    loading.value = false
+    return
+  }
 
   try {
     const data = await $fetch('/api/room/create', {
@@ -58,6 +82,11 @@ async function handleJoin() {
   loading.value = true
   roomStore.initUser(nickname.value)
 
+  if (!(await verifyNickname())) {
+    loading.value = false
+    return
+  }
+
   try {
     const check = await $fetch(`/api/room/check/${joinRoomId.value}`)
     if (!check.exists) {
@@ -86,19 +115,33 @@ function handlePointerDown(e: PointerEvent) {
 
 <template>
   <div class="relative min-h-screen">
-    <!-- 帮助按钮与弹窗 -->
-    <div class="fixed top-4 right-4 sm:top-6 sm:right-6 z-50">
+    <!-- 右上角悬浮操作区 -->
+    <div class="fixed top-4 right-4 sm:top-6 sm:right-6 z-50 flex flex-col gap-3">
+      <!-- 帮助 -->
       <UModal v-model:open="showHelp">
         <UButton
           icon="i-lucide-circle-help"
           size="xl"
           color="neutral"
           variant="ghost"
-          class="hover:scale-110 transition-transform text-pencil-grey/70 hover:text-pencil-grey"
+          class="hover:scale-110 transition-transform text-pencil-grey/70 hover:text-pencil-grey bg-white/50 backdrop-blur-sm rounded-full shadow-sm"
         />
-
         <template #content>
           <GameHelpModal @close="showHelp = false" />
+        </template>
+      </UModal>
+
+      <!-- 排行榜 -->
+      <UModal v-model:open="showLeaderboard">
+        <UButton
+          icon="i-lucide-trophy"
+          size="xl"
+          color="warning"
+          variant="ghost"
+          class="hover:scale-110 transition-transform text-yellow-600 bg-white/50 backdrop-blur-sm rounded-full shadow-sm"
+        />
+        <template #content>
+          <LeaderboardModal @close="showLeaderboard = false" />
         </template>
       </UModal>
     </div>
@@ -127,6 +170,7 @@ function handlePointerDown(e: PointerEvent) {
               v-model="nickname"
               placeholder="输入你的代号..."
               size="xl"
+              maxlength="14"
               color="neutral"
               variant="none"
               class="sketch-box !rotate-[0.2deg] bg-white border-2 border-pencil-grey"
