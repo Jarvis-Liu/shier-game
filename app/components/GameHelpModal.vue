@@ -20,7 +20,7 @@ defineEmits(['close'])
       </h3>
       <ul class="list-disc list-inside space-y-2 ml-2">
         <li>
-          <span class="font-bold text-pencil-grey">设定密码：</span>每局开始，双方各自设定一个 <span class="underline underline-offset-4 decoration-wavy decoration-ink-blue">不重复的 4 位数字</span>。
+          <span class="font-bold text-pencil-grey">设定密码：</span>每局开始，双方各自设定一个 <span class="underline underline-offset-4 decoration-wavy decoration-ink-blue"> 4 位数字</span>。
         </li>
         <li>
           <span class="font-bold text-pencil-grey">进行推演：</span>轮流输入你猜测的数字，系统会返回提示信息。
@@ -31,7 +31,7 @@ defineEmits(['close'])
       </ul>
 
       <div class="mt-4 p-3 bg-pencil-grey/5 border-l-4 border-pencil-grey text-sm">
-        <span class="font-bold">示例：</span> 若对方数字是 1234，你猜 1478，系统会提示有 <span class="font-bold text-pencil-grey">✓ 2 个对</span>。
+        <span class="font-bold">示例：</span> 若对方数字是 1234，你猜 1478，系统会提示有 <span class="font-bold text-pencil-grey">✓ 1 个对</span>。
       </div>
 
       <p class="text-center pt-4 font-bold text-pencil-grey animate-pulse">

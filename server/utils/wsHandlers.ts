@@ -1,5 +1,7 @@
 import type { Server, Socket } from 'socket.io'
 import { getRawRoom, getMaskedRoom, compareGuess, validateNumber } from './roomManager'
+import { recordWin } from './leaderboard'
+import { getNicknameById } from './userManager'
 import { RoomStatus, type GuessRecord } from '../../shared/types'
 
 // 记录 socketId 到房间和用户 ID 的映射，便于断开连接时清理
@@ -17,6 +19,9 @@ export function setupWSHandlers(io: Server) {
         return
       }
 
+      // 使用服务端注册的昵称，防止客户端伪造
+      const verifiedNickname = getNicknameById(userId) || nickname
+
       socket.join(roomId)
 
       // 处理身份
@@ -27,7 +32,7 @@ export function setupWSHandlers(io: Server) {
         // 第二个进入的人自动成为 Guest
         room.players.push({
           userId,
-          nickname,
+          nickname: verifiedNickname,
           role: 'guest',
           isReady: false,
           socketId: socket.id
@@ -42,7 +47,7 @@ export function setupWSHandlers(io: Server) {
         } else {
           room.spectators.push({
             userId,
-            nickname,
+            nickname: verifiedNickname,
             role: 'spectator',
             isReady: false,
             socketId: socket.id
@@ -78,7 +83,7 @@ export function setupWSHandlers(io: Server) {
       if (room.players.length === 2 && room.players.every(p => p.isReady)) {
         room.status = RoomStatus.PLAYING
         // 房主先手
-        room.currentTurnUserId = room.players[0].userId
+        room.currentTurnUserId = room.players[0]?.userId ?? null
       }
 
       broadcastRoomState(io, roomId)
@@ -116,6 +121,14 @@ export function setupWSHandlers(io: Server) {
       if (correctCount === 4) {
         room.status = RoomStatus.FINISHED
         room.winnerUserId = userId
+
+        // 排行榜记录获胜者
+        try {
+          recordWin(userId)
+        } catch (e) {
+          console.error('Failed to record win:', e)
+        }
+
         io.to(roomId).emit('game_over', {
           winnerUserId: userId,
           secrets: room.secrets

@@ -97,5 +97,11 @@ export function roomGC() {
   }
 }
 
-// 每 5 分钟执行一次 GC
-setInterval(roomGC, 5 * 60 * 1000)
+// 启动房间 GC 定时器（仅在运行时调用，禁止在模块顶层执行）
+let gcTimer: ReturnType<typeof setInterval> | null = null
+
+export function startRoomGC() {
+  if (gcTimer) return // 防止重复启动
+  gcTimer = setInterval(roomGC, 5 * 60 * 1000)
+  console.log('🧹 [RoomGC] 房间垃圾回收已启动，每 5 分钟执行一次')
+}

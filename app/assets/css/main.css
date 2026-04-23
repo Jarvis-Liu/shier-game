@@ -3,7 +3,7 @@
 
 @theme {
   --color-primary: var(--ui-primary);
-  
+
   /* PRD 指定色系 */
   --color-paper-base: #F4EFE6;
   --color-pencil-grey: #3B3A36;
@@ -35,6 +35,11 @@
     z-index: 9999;
     opacity: 0.15;
     filter: url(#paper-grain);
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
   }
 }
 
