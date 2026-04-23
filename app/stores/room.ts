@@ -9,6 +9,9 @@ export const useRoomStore = defineStore('room', () => {
   // 当前在线的玩家个人信息 (从 localStorage 恢复)
   const user = ref<{ userId: string, nickname: string } | null>(null)
 
+  // 玩家本局设定的秘密数字 (本地持久化，用于刷新后找回)
+  const mySecret = ref<string | null>(null)
+
   // 计算属性
   const isHost = computed(() => room.value?.players.find(p => p.userId === user.value?.userId)?.role === 'host')
   const myRole = computed(() => {
@@ -23,6 +26,19 @@ export const useRoomStore = defineStore('room', () => {
   // 更新房间状态
   function updateRoom(newRoom: Room) {
     room.value = newRoom
+    // 如果进入了新房间或状态重置，且没有本地 secret，则尝试从 localStorage 恢复
+    if (newRoom.roomId && !mySecret.value) {
+      const saved = localStorage.getItem(`numdecode_secret_${newRoom.roomId}`)
+      if (saved) mySecret.value = saved
+    }
+  }
+
+  // 设置秘密数字
+  function setMySecret(secret: string) {
+    mySecret.value = secret
+    if (room.value?.roomId) {
+      localStorage.setItem(`numdecode_secret_${room.value.roomId}`, secret)
+    }
   }
 
   // 初始化用户信息
@@ -40,16 +56,22 @@ export const useRoomStore = defineStore('room', () => {
 
   // 状态清理
   function reset() {
+    if (room.value?.roomId) {
+      localStorage.removeItem(`numdecode_secret_${room.value.roomId}`)
+    }
     room.value = null
+    mySecret.value = null
   }
 
   return {
     room,
     user,
+    mySecret,
     isHost,
     myRole,
     isMyTurn,
     updateRoom,
+    setMySecret,
     initUser,
     reset
   }

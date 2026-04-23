@@ -30,6 +30,7 @@ function handleLock() {
   }
 
   setSecret(props.roomId, secret.value)
+  roomStore.setMySecret(secret.value)
   isLocked.value = true
 }
 </script>

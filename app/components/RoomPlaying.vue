@@ -9,6 +9,7 @@ const roomStore = useRoomStore();
 const { submitGuess } = useSocketio();
 const currentGuess = ref("");
 const logContainer = ref<HTMLElement | null>(null);
+const showSecret = ref(false); // 控制秘密数字显隐
 
 const room = computed(() => roomStore.room);
 const isMyTurn = computed(() => roomStore.isMyTurn);
@@ -155,6 +156,33 @@ watch(
 
     <!-- 右侧：操作台 (Console) -->
     <div class="w-full md:w-80 flex flex-col space-y-4">
+      <!-- 我的底牌 (My Secret Number) -->
+      <div 
+        v-if="roomStore.mySecret"
+        class="sketch-box p-3 bg-pencil-grey/5 border-dashed flex items-center justify-between group transition-all hover:bg-pencil-grey/10"
+      >
+        <div class="flex items-center gap-2">
+          <UIcon name="i-lucide-shield-half" class="text-pencil-grey/40" />
+          <span class="text-xs font-bold text-pencil-grey/60 uppercase tracking-wider">我的底牌</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <span 
+            class="font-mono font-bold tracking-[0.2em] transition-all"
+            :class="showSecret ? 'text-pencil-grey text-sm' : 'text-pencil-grey/20 blur-[2px] text-xs'"
+          >
+            {{ showSecret ? roomStore.mySecret : '****' }}
+          </span>
+          <UButton
+            :icon="showSecret ? 'i-lucide-eye-off' : 'i-lucide-eye'"
+            variant="ghost"
+            color="gray"
+            size="xs"
+            class="rounded-full !p-1 hover:bg-white/50"
+            @click="showSecret = !showSecret"
+          />
+        </div>
+      </div>
+
       <!-- 轮次状态 -->
       <div
         class="sketch-box p-4 text-center transition-all duration-500"
