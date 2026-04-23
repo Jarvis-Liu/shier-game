@@ -13,6 +13,39 @@ const logContainer = ref<HTMLElement | null>(null);
 const room = computed(() => roomStore.room);
 const isMyTurn = computed(() => roomStore.isMyTurn);
 
+// 浏览器标题提醒逻辑
+const { startFlash, stopFlash } = useTitleNotification();
+
+// 监听回合变化
+watch(isMyTurn, (newVal) => {
+  if (newVal && document.visibilityState === "hidden") {
+    startFlash("【★ 轮到你了 ★】");
+  } else if (!newVal) {
+    stopFlash();
+  }
+});
+
+// 处理页面可见性变化
+const handleVisibilityChange = () => {
+  if (document.visibilityState === "visible") {
+    stopFlash();
+  } else if (isMyTurn.value) {
+    startFlash("【★ 轮到你了 ★】");
+  }
+};
+
+onMounted(() => {
+  if (process.client) {
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+  }
+});
+
+onUnmounted(() => {
+  if (process.client) {
+    document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }
+});
+
 // 输入逻辑
 function pressNumber(num: number) {
   if (currentGuess.value.length < 4) {
